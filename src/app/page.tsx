@@ -1,6 +1,6 @@
 'use client'
 
-import { Mail, Github, Linkedin, FileText, Award, Cloud, Database, Cpu, Server, Circle, BarChart3, ShieldCheck } from "lucide-react";
+import { Mail, Github, Linkedin, FileText, Cloud, Database, Cpu, Server, BarChart3, ShieldCheck } from "lucide-react";
 import React from 'react';
 
 export default function Home() {
@@ -299,9 +299,9 @@ export default function Home() {
 
         <section id="contact" className="min-h-screen py-32">
           <div className="bg-gray-800/50 backdrop-blur-lg rounded-3xl p-12 shadow-2xl border border-white/10">
-            <h2 className="text-4xl font-bold font-serif mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Let's Connect</h2>
+            <h2 className="text-4xl font-bold font-serif mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Let&apos;s Connect</h2>
             <p className="text-gray-300 mb-12 max-w-2xl">
-              I'm always excited to collaborate on innovative projects and discuss new opportunities. Whether you're interested in my research, looking for a developer, or just want to chat about technology, feel free to reach out!
+              I&apos;m always excited to collaborate on innovative projects and discuss new opportunities. Whether you&apos;re interested in my research, looking for a developer, or just want to chat about technology, feel free to reach out!
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               {[
