@@ -1,9 +1,60 @@
-'use client'
+'use client';
 
-import { Mail, Github, Linkedin, FileText, Cloud, Database, Cpu, Server, BarChart3, ShieldCheck } from "lucide-react";
-import React from 'react';
+import { Mail, Github, Linkedin, FileText, Cloud, Database, Cpu, Server, ArrowUp, MessageCircle } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+
+// Progress Bar Component
+const ProgressBar = ({ proficiency }: { proficiency: number }) => (
+  <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
+    <div 
+      className="bg-gradient-to-r from-blue-500 to-purple-500 h-2.5 rounded-full transition-all duration-500"
+      style={{ width: `${proficiency}%` }}
+    />
+  </div>
+);
 
 export default function Home() {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [activeSection, setActiveSection] = useState('about');
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+      
+      // Update active section based on scroll position
+      const sections = ['about', 'portfolio', 'skills', 'blog', 'contact'];
+      const currentSection = sections.find(section => {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          return rect.top <= 100 && rect.bottom >= 100;
+        }
+        return false;
+      });
+      if (currentSection) setActiveSection(currentSection);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   const scrollToSection = (sectionId: string): void => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -14,13 +65,15 @@ export default function Home() {
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const roles = [
     { title: "Solutions Architect", icon: Cloud },
     { title: "Data Engineer", icon: Database },
     { title: "MLOps & DevOps Specialist", icon: Cpu }
   ];
-
-
 
   const skillCategories = [
     {
@@ -43,52 +96,185 @@ export default function Home() {
     }
   ];
 
-  const ProgressBar = ({ proficiency }: { proficiency: number }) => (
-    <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
-      <div 
-        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2.5 rounded-full transition-all duration-500"
-        style={{ width: `${proficiency}%` }}
-      />
-    </div>
+  // Loading Screen Component
+  const LoadingScreen = () => (
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center z-50"
+    >
+      <div className="text-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
+        />
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500"
+        >
+          Manas Singh
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="text-gray-400 mt-2"
+        >
+          Loading Portfolio...
+        </motion.p>
+      </div>
+    </motion.div>
   );
 
+  // Floating Action Buttons
+  const FloatingElements = () => (
+    <>
+      {/* Scroll to Top Button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            onClick={scrollToTop}
+            className="fixed bottom-8 right-8 z-40 p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
+          >
+            <ArrowUp size={20} className="text-white group-hover:scale-110 transition-transform" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Contact Button */}
+      <motion.div
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 2.5 }}
+        className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40"
+      >
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => scrollToSection('contact')}
+          className="p-3 bg-green-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
+        >
+          <MessageCircle size={20} className="text-white group-hover:rotate-12 transition-transform" />
+        </motion.button>
+      </motion.div>
+
+      {/* Mouse Follower */}
+      <motion.div
+        className="fixed w-4 h-4 bg-blue-500/30 rounded-full pointer-events-none z-50 mix-blend-difference"
+        animate={{
+          x: mousePosition.x - 8,
+          y: mousePosition.y - 8,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 500,
+          damping: 28,
+        }}
+      />
+    </>
+  );
+
+  if (isLoading) {
+    return (
+      <AnimatePresence>
+        <LoadingScreen />
+      </AnimatePresence>
+    );
+  }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white font-sans">
+    <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white font-sans overflow-x-hidden">
       <div className="fixed inset-0 opacity-20">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
         <div className="absolute top-0 -right-4 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
       </div>
 
-      <nav className="fixed top-0 left-0 right-0 bg-gray-900/50 backdrop-blur-lg border-b border-white/10 z-50">
+      <motion.nav 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+        className="fixed top-0 left-0 right-0 bg-gray-900/50 backdrop-blur-lg border-b border-white/10 z-50"
+      >
         <div className="max-w-6xl mx-auto flex justify-center sm:justify-end gap-8 p-6">
           {['About', 'Portfolio', 'Skills', 'Contact'].map((label) => (
-            <button
+            <motion.button
               key={label}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => scrollToSection(label.toLowerCase())}
-              className="text-gray-300 hover:text-white relative group transition-colors text-sm tracking-wide"
+              className={`relative group transition-colors text-sm tracking-wide ${
+                activeSection === label.toLowerCase() 
+                  ? 'text-blue-400' 
+                  : 'text-gray-300 hover:text-white'
+              }`}
             >
               {label}
+              <motion.span 
+                className="absolute -bottom-1 left-0 h-0.5 bg-blue-500"
+                initial={{ width: 0 }}
+                animate={{ 
+                  width: activeSection === label.toLowerCase() ? '100%' : 0 
+                }}
+                transition={{ duration: 0.3 }}
+              />
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 group-hover:w-full transition-all duration-300"></span>
-            </button>
+            </motion.button>
           ))}
         </div>
-      </nav>
+      </motion.nav>
+
+      <FloatingElements />
 
       <main className="relative z-10 w-full max-w-6xl mx-auto px-8">
-      <section id="about" className="min-h-screen flex items-center justify-center pt-24">
+        <section id="about" className="min-h-screen flex items-center justify-center pt-24">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <img 
-              src="./profile.jpg"
-              alt="Manas Singh" 
-              className="w-64 h-64 rounded-2xl border-2 border-blue-500/20 shadow-xl object-cover mx-auto"
-            />
-            <div className="space-y-8">
-            <h1 className="text-5xl sm:text-6xl font-bold font-serif bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight leading-tight py-1">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="relative"
+            >
+              <Image 
+                src="/profile.jpg"
+                alt="Manas Singh" 
+                width={256}
+                height={256}
+                className="w-64 h-64 rounded-2xl border-2 border-blue-500/20 shadow-xl object-cover mx-auto hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="space-y-8"
+            >
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="text-5xl sm:text-6xl font-bold font-serif bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight leading-tight py-1"
+              >
                 Manas Singh
-            </h1>
+              </motion.h1>
               
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="text-xl sm:text-2xl text-blue-400 mb-6"
+              >
+                Solutions Architect & Data Engineer
+              </motion.div>
+                
               <div className="flex flex-wrap gap-4">
                 {roles.map((role, index) => (
                   <div key={index} className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-full border border-blue-500/20">
@@ -102,22 +288,6 @@ export default function Home() {
                 <p className="text-gray-300 leading-relaxed">
                   Masters in Computer Science student at Stevens Institute of Technology with 2+ years of experience specializing in cloud optimization, automation, and scalable infrastructure across DevOps, Data Engineering, and FinTech domains.
                 </p>
-                <div className="p-4 bg-gray-800/50 rounded-xl border border-blue-500/20">
-                  <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-2">
-                    <Server size={18} /> Professional Impact
-                  </h3>
-                  <p className="text-gray-300">
-                    At Elenjical Solutions, led cloud migration projects for Saudi National Bank (SNB) and MMH, improving system reliability by 30% and reducing operational costs.
-                  </p>
-                </div>
-                <div className="p-4 bg-gray-800/50 rounded-xl border border-blue-500/20">
-                  <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-2">
-                    <Cloud size={18} /> Current Research
-                  </h3>
-                  <p className="text-gray-300">
-                    Working with <a href="https://scholar.google.com/citations?user=zchOfB4AAAAJ&hl=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Professor Noor Ahmed</a> on cloud optimization for UAV networks, developing autonomous networking protocols and federated ML models for resource-constrained environments.
-                  </p>
-                </div>
               </div>
 
               <div className="flex gap-4 pt-2">
@@ -133,7 +303,7 @@ export default function Home() {
                   </div>
                 </a>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -141,65 +311,31 @@ export default function Home() {
           <div className="bg-gray-800/50 backdrop-blur-lg rounded-3xl p-12 shadow-2xl border border-white/10">
             <h2 className="text-4xl font-bold font-serif mb-12 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Recent Projects</h2>
             <div className="grid grid-cols-1 gap-8">
-              {[
-                {
-                  title: "UAV Swarming Research",
-                  date: "January 2024 - Present",
-                  description: [
-                    "Leading cloud infrastructure development for autonomous UAV swarms using OpenStack and AWS",
-                    "Implementing lightweight federated ML models achieving 40% reduced resource usage",
-                    "Developing secure communication protocols for GPS-denied environments with 99.9% uptime"
-                  ],
-                  tech: "OpenStack, AWS, Azure, ML",
-                  icon: Cloud
-                },
-                {
-                  title: "Stock Market Prediction",
-                  date: "August 2024 - December 2024",
-                  description: [
-                    "Built ML pipeline achieving 25% improved accuracy using LSTM networks",
-                    "Implemented automated data collection system processing 1M+ daily data points",
-                    "Developed real-time market analysis dashboard with 5-second refresh rate"
-                  ],
-                  tech: "Python, AWS, Docker, Selenium",
-                  icon: BarChart3
-                },
-                {
-                  title: "Cloud Clinic",
-                  date: "March 2024 - May 2024",
-                  description: [
-                    "Built HIPAA-compliant telehealth platform with end-to-end encryption",
-                    "Achieved 90% test coverage and supported 50+ concurrent video calls",
-                    "Implemented secure medical record sharing system with role-based access"
-                  ],
-                  tech: "Next.js, Python, AWS, Jest",
-                  icon: ShieldCheck
-                }
-              ].map((project, index) => (
-                <div key={index} className="group p-0.5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl">
-                  <div className="bg-gray-900 p-8 rounded-2xl transition-transform group-hover:-translate-y-1">
-                    <div className="flex justify-between items-start mb-6 flex-wrap gap-2">
-                      <div className="flex items-center gap-3">
-                        <project.icon size={24} className="text-blue-400" />
-                        <h3 className="text-xl font-semibold tracking-tight">{project.title}</h3>
-                      </div>
-                      <span className="text-sm text-gray-400">{project.date}</span>
+              <div className="group p-0.5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl">
+                <div className="bg-gray-900 p-8 rounded-2xl transition-transform group-hover:-translate-y-1">
+                  <div className="flex justify-between items-start mb-6 flex-wrap gap-2">
+                    <div className="flex items-center gap-3">
+                      <Cloud size={24} className="text-blue-400" />
+                      <h3 className="text-xl font-semibold tracking-tight">UAV Swarming Research</h3>
                     </div>
-                    <ul className="space-y-2 mb-4">
-                      {project.description.map((point, i) => (
-                        <li key={i} className="text-gray-300 flex items-start gap-2">
-                          <div className="mt-1.5 h-1.5 w-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="flex items-center gap-2 text-sm text-blue-400">
-                      <Server size={16} />
-                      {project.tech}
-                    </div>
+                    <span className="text-sm text-gray-400">January 2024 - Present</span>
+                  </div>
+                  <ul className="space-y-2 mb-4">
+                    <li className="text-gray-300 flex items-start gap-2">
+                      <div className="mt-1.5 h-1.5 w-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
+                      Leading cloud infrastructure development for autonomous UAV swarms using OpenStack and AWS
+                    </li>
+                    <li className="text-gray-300 flex items-start gap-2">
+                      <div className="mt-1.5 h-1.5 w-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
+                      Implementing lightweight federated ML models achieving 40% reduced resource usage
+                    </li>
+                  </ul>
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <Server size={16} />
+                    OpenStack, AWS, Azure, ML
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </section>
@@ -221,77 +357,6 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <h3 className="text-2xl font-bold mb-8 text-blue-300 tracking-tight">Certifications</h3>
-            <div className="grid grid-cols-1 gap-6">
-              {[
-                {
-                  title: "AWS Solutions Architect Associate",
-                  org: "Amazon Web Services",
-                  link: "https://www.credly.com/badges/84eb1fea-4de2-4b42-bb71-07e84439b70c/linked_in_profile",
-                  logo: (
-                          <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-                            <path d="M4 7L12 2L20 7V17L12 22L4 17V7Z" stroke="#FF9900" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            
-                            <rect x="9" y="9" width="6" height="6" stroke="#FF9900" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                  )
-                },
-                {
-                  title: "DevOps Professional Certificate",
-                  org: "LinkedIn Learning",
-                  link: "https://www.linkedin.com/learning/certificates/0ec469b60c3ef60980d2d272af199d981285322a5ca2ef6ecae9aabc215e93d1",
-                  logo: (<svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    
-                    <circle cx="12" cy="12" r="9" stroke="#00B5E2" strokeWidth="2" fill="none"/>
-                    
-                   
-                    <path d="M15 9L18 12L15 15" stroke="#FF6F00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M9 15L6 12L9 9" stroke="#FF6F00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    
-                   
-                    <circle cx="12" cy="12" r="3" fill="#FF9900"/>
-                    <path d="M12 8V16" stroke="#FFFFFF" strokeWidth="1.5"/>
-                    <path d="M8 12H16" stroke="#FFFFFF" strokeWidth="1.5"/>
-                  </svg>)
-                },
-                {
-                  title: "Career Essentials in Generative AI by Microsoft",
-                  org: "LinkedIn Learning",
-                  link: "https://www.linkedin.com/learning/certificates/38ee7a1b22f1e81ce30868e9fb9208304f241ff538d25043a06b929b04e2e816",
-                  logo: (<svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    
-                    <rect x="2" y="2" width="7" height="7" fill="#00A4EF" stroke="#FFFFFF" strokeWidth="1"/>
-                    
-                    
-                    <rect x="2" y="11" width="7" height="7" fill="#7DBE3C" stroke="#FFFFFF" strokeWidth="1"/>
-                    
-                   
-                    <rect x="11" y="2" width="7" height="7" fill="#FFB81C" stroke="#FFFFFF" strokeWidth="1"/>
-                    
-                    
-                    <rect x="11" y="11" width="7" height="7" fill="#D83B01" stroke="#FFFFFF" strokeWidth="1"/>
-                  </svg>)
-                }
-              ].map((cert, index) => (
-                <a 
-                  key={index}
-                  href={cert.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group p-0.5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl"
-                >
-                  <div className="bg-gray-900 p-6 rounded-2xl transition-transform group-hover:-translate-y-1 flex items-center gap-4">
-                    {cert.logo}
-                    <div>
-                      <h4 className="font-semibold tracking-tight">{cert.title}</h4>
-                      <p className="text-gray-300">{cert.org}</p>
-                    </div>
-                  </div>
-                </a>
               ))}
             </div>
           </div>
