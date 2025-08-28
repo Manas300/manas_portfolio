@@ -13,17 +13,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Manas Singh - Solutions Architect & Data Engineer",
-  description: "Masters in Computer Science student at Stevens Institute of Technology specializing in cloud optimization, automation, and scalable infrastructure. 2+ years experience in DevOps, Data Engineering, and FinTech.",
-  keywords: "Manas Singh, Solutions Architect, Data Engineer, MLOps, DevOps, Cloud Computing, AWS, Python, Machine Learning, Stevens Institute of Technology",
+  title: "MANAS SINGH - Building the Future",
+  description: "Solutions Architect & Data Engineer at Stevens Institute of Technology. Transforming complex problems into elegant solutions. From autonomous UAV swarms to fintech innovations - building scalable systems that power tomorrow.",
+  keywords: "Manas Singh, Solutions Architect, Data Engineer, MLOps, DevOps, Cloud Computing, AWS, Python, Machine Learning, Stevens Institute of Technology, UAV Research, Fintech, Automation",
   authors: [{ name: "Manas Singh" }],
   creator: "Manas Singh",
   publisher: "Manas Singh",
   openGraph: {
-    title: "Manas Singh - Solutions Architect & Data Engineer",
-    description: "Masters in Computer Science student specializing in cloud optimization, automation, and scalable infrastructure.",
+    title: "MANAS SINGH - Building the Future",
+    description: "Solutions Architect & Data Engineer transforming complex problems into elegant solutions. Building scalable systems that power tomorrow.",
     url: "https://manas300.github.io/manas_portfolio",
-    siteName: "Manas Singh Portfolio",
+    siteName: "Manas Singh - Portfolio",
     images: [
       {
         url: "/profile.jpg",
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Manas Singh - Solutions Architect & Data Engineer",
-    description: "Masters in Computer Science student specializing in cloud optimization, automation, and scalable infrastructure.",
+    title: "MANAS SINGH - Building the Future",
+    description: "Solutions Architect & Data Engineer transforming complex problems into elegant solutions.",
     images: ["/profile.jpg"],
   },
   robots: {
